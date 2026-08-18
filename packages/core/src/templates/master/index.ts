@@ -59,15 +59,15 @@ const ResourceSchema = z.object({
   description: z.string().max(1000).optional(),
   status: z.enum(['draft', 'published', 'archived']).default('draft'),
   priority: z.number().min(0).max(5).default(0),
-  metadata: z.record(z.any()).optional()
+  metadata: z.record(z.string(), z.any()).optional()
 });
 
 const ResourceUpdateSchema = ResourceSchema.partial();
 
 // Pagination Schema
 const PaginationSchema = z.object({
-  page: z.string().transform(Number).default('1'),
-  limit: z.string().transform(Number).default('20'),
+  page: z.preprocess((value) => value ?? '1', z.string().transform(Number)),
+  limit: z.preprocess((value) => value ?? '20', z.string().transform(Number)),
   sort: z.string().default('created_at:desc'),
   filter: z.string().optional()
 });

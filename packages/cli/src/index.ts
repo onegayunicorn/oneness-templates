@@ -196,20 +196,32 @@ program
       scripts: {
         dev: 'wrangler dev',
         deploy: 'wrangler deploy',
-        build: 'vite build',
-        test: 'vitest'
+        typecheck: 'tsc --noEmit',
+        build: 'tsc --noEmit',
+        test: 'vitest run'
       },
       dependencies: {},
       devDependencies: {
         '@cloudflare/workers-types': '^4.20240821.0',
         'wrangler': '^4.0.0',
         'typescript': '^5.0.0',
-        'vite': '^5.0.0'
+        'vitest': '^3.2.4'
       }
     };
     
+    const compatibleVersions: Record<string, string> = {
+      hono: '^4.7.0',
+      '@hono/zod-validator': '^0.4.0',
+      zod: '^3.24.0',
+      nanoid: '^5.1.0',
+      'hono-rate-limiter': '^0.4.2',
+      '@aws-sdk/client-s3': '^3.800.0',
+      '@aws-sdk/s3-request-presigner': '^3.800.0',
+      '@hono/zod-openapi': '^0.19.0',
+      '@hono/swagger-ui': '^0.5.0'
+    };
     for (const dep of template.dependencies) {
-      packageJson.dependencies[dep] = 'latest';
+      packageJson.dependencies[dep] = compatibleVersions[dep] || 'latest';
     }
     
     await fs.writeJSON(path.join(projectDir, 'package.json'), packageJson, { spaces: 2 });
@@ -229,7 +241,7 @@ program
         noEmit: true,
         types: ['@cloudflare/workers-types']
       },
-      include: ['src/**/*'],
+      include: ['src/**/*', 'index.ts', 'tests/**/*'],
       exclude: ['node_modules', 'dist']
     };
     
