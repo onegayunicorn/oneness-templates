@@ -342,7 +342,7 @@ export class MultiplayerGlobeTemplate {
               // Connect to WebSocket
               function connectWebSocket() {
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsUrl = `${protocol}//${window.location.host}/api/visitors/ws`;
+                const wsUrl = \`\${protocol}//\${window.location.host}/api/visitors/ws\`;
                 ws = new WebSocket(wsUrl);
 
                 ws.onopen = () => {

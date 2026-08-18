@@ -610,7 +610,7 @@ export class R2ExplorerTemplate {
               // Load files
               async function loadFiles(path = '') {
                 currentPath = path;
-                const response = await fetch(`/api/files?prefix=${encodeURIComponent(path)}`);
+                const response = await fetch(\`/api/files?prefix=\${encodeURIComponent(path)}\`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -722,11 +722,11 @@ export class R2ExplorerTemplate {
                 parts.forEach((part, index) => {
                   currentPath += part + '/';
                   const isLast = index === parts.length - 1;
-                  html += ` <span>›</span> `;
+                  html += \` <span>›</span> \`;
                   if (isLast) {
-                    html += `<span style="color:#e0e0e0">${part}</span>`;
+                    html += \`<span style="color:#e0e0e0">\${part}</span>\`;
                   } else {
-                    html += `<span onclick="navigateTo('${currentPath}')">${part}</span>`;
+                    html += \`<span onclick="navigateTo('\${currentPath}')">\${part}</span>\`;
                   }
                 });
                 
@@ -749,13 +749,13 @@ export class R2ExplorerTemplate {
                 const isText = /\.(txt|md|json|xml|html|css|js|ts|py|rb|java|c|cpp)$/i.test(key);
                 
                 if (isImage) {
-                  body.innerHTML = `<img src="/api/preview/${encodeURIComponent(key)}" alt="${key}" />`;
+                  body.innerHTML = \`<img src="/api/preview/\${encodeURIComponent(key)}" alt="\${key}" />\`;
                 } else if (isText) {
-                  const response = await fetch(`/api/preview/${encodeURIComponent(key)}`);
+                  const response = await fetch(\`/api/preview/\${encodeURIComponent(key)}\`);
                   const text = await response.text();
-                  body.innerHTML = `<pre>${escapeHtml(text)}</pre>`;
+                  body.innerHTML = \`<pre>\${escapeHtml(text)}</pre>\`;
                 } else {
-                  body.innerHTML = `<p style="color:#888;">Preview not available for this file type</p>`;
+                  body.innerHTML = \`<p style="color:#888;">Preview not available for this file type</p>\`;
                 }
                 
                 modal.classList.add('active');
@@ -769,16 +769,16 @@ export class R2ExplorerTemplate {
               // Download current file
               function downloadCurrentFile() {
                 if (selectedFile) {
-                  window.location.href = `/api/download/${encodeURIComponent(selectedFile)}`;
+                  window.location.href = \`/api/download/\${encodeURIComponent(selectedFile)}\`;
                 }
               }
 
               // Delete current file
               async function deleteCurrentFile() {
                 if (!selectedFile) return;
-                if (!confirm(`Delete ${selectedFile}?`)) return;
+                if (!confirm(\`Delete \${selectedFile}?\`)) return;
                 
-                const response = await fetch(`/api/delete/${encodeURIComponent(selectedFile)}`, {
+                const response = await fetch(\`/api/delete/\${encodeURIComponent(selectedFile)}\`, {
                   method: 'DELETE'
                 });
                 const result = await response.json();
@@ -799,7 +799,7 @@ export class R2ExplorerTemplate {
                   return;
                 }
                 
-                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&prefix=${encodeURIComponent(currentPath)}`);
+                const response = await fetch(\`/api/search?q=\${encodeURIComponent(query)}&prefix=\${encodeURIComponent(currentPath)}\`);
                 const result = await response.json();
                 
                 if (result.success) {
