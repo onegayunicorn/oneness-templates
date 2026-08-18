@@ -6,12 +6,14 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "pretypecheck": "pnpm --filter @oneness/platform build",
     "typecheck": "tsc --noEmit",
     "test": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@oneness/core": "workspace:*",
+    "@oneness/platform": "workspace:*",
     "chalk": "^5.4.0",
     "commander": "^13.1.0",
     "fs-extra": "^11.3.0",

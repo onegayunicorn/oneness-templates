@@ -7,6 +7,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs-extra';
 import path from 'path';
+import { composeApplication, formatCompositionPlan, loadPlatformCatalog } from '@oneness/platform';
 import { fileURLToPath } from 'url';
 
 const execAsync = promisify(exec);
@@ -161,6 +162,33 @@ program
       }
     }
     console.log();
+  });
+
+program
+  .command('pathways')
+  .description('List platform pathways from the machine-readable architecture catalog')
+  .action(() => {
+    const catalog = loadPlatformCatalog();
+    console.log(JSON.stringify(catalog.pathways.pathways, null, 2));
+  });
+
+program
+  .command('compose')
+  .description('Resolve a pathway into a dependency-ordered capability composition plan')
+  .argument('<pathway>', 'Pathway identifier, for example enterprise or procurement')
+  .option('-c, --capabilities <capabilities>', 'Comma-separated capability module identifiers')
+  .action((pathway, options) => {
+    try {
+      const capabilities = options.capabilities
+        ? options.capabilities.split(',').map((value: string) => value.trim()).filter(Boolean)
+        : undefined;
+      const plan = composeApplication(loadPlatformCatalog(), pathway, capabilities);
+      console.log(formatCompositionPlan(plan));
+      if (plan.unresolvedCapabilities.length > 0) process.exitCode = 2;
+    } catch (error) {
+      console.error(chalk.red(`❌ Composition failed: ${(error as Error).message}`));
+      process.exitCode = 1;
+    }
   });
 
 program
