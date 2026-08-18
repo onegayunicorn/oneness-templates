@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CapabilityPluginRegistry,
   composeApplication,
   getPathway,
-  loadPlatformCatalog
+  loadPlatformCatalog,
+  validateCapabilityPlugin
 } from '../src/index.js';
 
 describe('@oneness/platform', () => {
@@ -43,5 +45,42 @@ describe('@oneness/platform', () => {
 
   it('rejects unknown pathways', () => {
     expect(() => getPathway(catalog, 'missing')).toThrow('Unknown pathway: missing');
+  });
+
+  it('registers an external capability and resolves its catalog dependencies', () => {
+    const registry = new CapabilityPluginRegistry().register({
+      id: 'acme-risk',
+      version: '1.0.0',
+      apiVersion: '1',
+      capabilities: [{
+        id: 'risk-scoring',
+        status: 'partial',
+        dependencies: ['identity'],
+        concerns: ['risk-models']
+      }]
+    });
+    const plan = composeApplication(catalog, 'enterprise', ['risk-scoring'], registry);
+    expect(plan.resolvedCapabilities.map((module) => module.id)).toEqual(['identity', 'risk-scoring']);
+    expect(plan.resolvedCapabilities.at(-1)?.source).toBe('plugin:acme-risk@1.0.0');
+  });
+
+  it('rejects plugin capability collisions with built-in modules', () => {
+    const registry = new CapabilityPluginRegistry().register({
+      id: 'bad-plugin',
+      version: '1.0.0',
+      apiVersion: '1',
+      capabilities: [{ id: 'identity', status: 'partial', dependencies: [], concerns: [] }]
+    });
+    expect(() => composeApplication(catalog, 'enterprise', ['identity'], registry))
+      .toThrow('Plugin capability conflicts with catalog module: identity');
+  });
+
+  it('validates plugin metadata before registration', () => {
+    expect(() => validateCapabilityPlugin({
+      id: 'Bad Plugin',
+      version: '1.0.0',
+      apiVersion: '1',
+      capabilities: [{ id: 'custom', status: 'partial', dependencies: [], concerns: [] }]
+    })).toThrow('Invalid plugin id');
   });
 });

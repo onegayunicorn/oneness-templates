@@ -7,7 +7,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs-extra';
 import path from 'path';
-import { composeApplication, formatCompositionPlan, loadPlatformCatalog } from '@oneness/platform';
+import { CapabilityPluginRegistry, composeApplication, formatCompositionPlan, loadCapabilityPlugins, loadPlatformCatalog } from '@oneness/platform';
 import { fileURLToPath } from 'url';
 
 const execAsync = promisify(exec);
@@ -177,12 +177,16 @@ program
   .description('Resolve a pathway into a dependency-ordered capability composition plan')
   .argument('<pathway>', 'Pathway identifier, for example enterprise or procurement')
   .option('-c, --capabilities <capabilities>', 'Comma-separated capability module identifiers')
-  .action((pathway, options) => {
+  .option('-p, --plugin <specifier>', 'External capability plugin package or module; repeatable', (value: string, previous: string[] = []) => [...previous, value], [])
+  .action(async (pathway, options) => {
     try {
       const capabilities = options.capabilities
         ? options.capabilities.split(',').map((value: string) => value.trim()).filter(Boolean)
         : undefined;
-      const plan = composeApplication(loadPlatformCatalog(), pathway, capabilities);
+      const registry = options.plugin.length
+        ? await loadCapabilityPlugins(options.plugin, new CapabilityPluginRegistry())
+        : undefined;
+      const plan = composeApplication(loadPlatformCatalog(), pathway, capabilities, registry);
       console.log(formatCompositionPlan(plan));
       if (plan.unresolvedCapabilities.length > 0) process.exitCode = 2;
     } catch (error) {
