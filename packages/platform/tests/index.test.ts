@@ -4,6 +4,7 @@ import {
   composeApplication,
   getPathway,
   loadPlatformCatalog,
+  materializeApplication,
   validateCapabilityPlugin
 } from '../src/index.js';
 
@@ -73,6 +74,20 @@ describe('@oneness/platform', () => {
     });
     expect(() => composeApplication(catalog, 'enterprise', ['identity'], registry))
       .toThrow('Plugin capability conflicts with catalog module: identity');
+  });
+
+  it('materializes a dependency-ordered application skeleton', () => {
+    const plan = composeApplication(catalog, 'enterprise', ['authorization']);
+    const result = materializeApplication(plan, { projectName: 'enterprise-app' });
+    expect(result.generatedCapabilities).toEqual(['identity', 'organisations', 'authorization']);
+    expect(result.files.map((file) => file.path)).toContain('ONENESS_COMPOSITION.json');
+    expect(result.files.map((file) => file.path)).toContain('src/capabilities/authorization.ts');
+    expect(result.files.find((file) => file.path === 'package.json')?.content).toContain('typecheck');
+  });
+
+  it('rejects invalid generated project names', () => {
+    const plan = composeApplication(catalog, 'enterprise', ['identity']);
+    expect(() => materializeApplication(plan, { projectName: 'Invalid Project' })).toThrow('Invalid project name');
   });
 
   it('validates plugin metadata before registration', () => {

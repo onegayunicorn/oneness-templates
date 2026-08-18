@@ -7,7 +7,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs-extra';
 import path from 'path';
-import { CapabilityPluginRegistry, composeApplication, formatCompositionPlan, loadCapabilityPlugins, loadPlatformCatalog } from '@oneness/platform';
+import { CapabilityPluginRegistry, composeApplication, formatCompositionPlan, loadCapabilityPlugins, loadPlatformCatalog, materializeApplication } from '@oneness/platform';
 import { fileURLToPath } from 'url';
 
 const execAsync = promisify(exec);
@@ -191,6 +191,42 @@ program
       if (plan.unresolvedCapabilities.length > 0) process.exitCode = 2;
     } catch (error) {
       console.error(chalk.red(`❌ Composition failed: ${(error as Error).message}`));
+      process.exitCode = 1;
+    }
+  });
+
+program
+  .command('materialize')
+  .description('Generate a buildable application skeleton from a capability composition plan')
+  .argument('<pathway>', 'Pathway identifier')
+  .option('-n, --name <name>', 'Generated project name', 'oneness-generated-app')
+  .option('-o, --output <directory>', 'Output directory', './generated')
+  .option('-c, --capabilities <capabilities>', 'Comma-separated capability module identifiers')
+  .option('-p, --plugin <specifier>', 'External capability plugin package or module; repeatable', (value: string, previous: string[] = []) => [...previous, value], [])
+  .action(async (pathway, options) => {
+    try {
+      const capabilities = options.capabilities
+        ? options.capabilities.split(',').map((value: string) => value.trim()).filter(Boolean)
+        : undefined;
+      const registry = options.plugin.length
+        ? await loadCapabilityPlugins(options.plugin, new CapabilityPluginRegistry())
+        : undefined;
+      const plan = composeApplication(loadPlatformCatalog(), pathway, capabilities, registry);
+      if (plan.unresolvedCapabilities.length > 0) {
+        throw new Error(`Cannot materialize unresolved capabilities: ${plan.unresolvedCapabilities.join(', ')}`);
+      }
+      const result = materializeApplication(plan, { projectName: options.name, outputDirectory: options.output });
+      const outputDirectory = path.resolve(options.output);
+      await fs.ensureDir(outputDirectory);
+      for (const file of result.files) {
+        const destination = path.join(outputDirectory, file.path);
+        await fs.ensureDir(path.dirname(destination));
+        await fs.writeFile(destination, file.content, 'utf8');
+      }
+      console.log(chalk.green(`✅ Materialized ${result.projectName} at ${outputDirectory}`));
+      console.log(chalk.gray(`Generated capabilities: ${result.generatedCapabilities.join(', ')}`));
+    } catch (error) {
+      console.error(chalk.red(`❌ Materialization failed: ${(error as Error).message}`));
       process.exitCode = 1;
     }
   });
