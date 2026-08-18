@@ -1,0 +1,8 @@
+flowchart LR
+  C[Command] --> V[Validation]
+  V --> A[Authorization]
+  A --> T[Transaction]
+  T --> D[Domain Event]
+  D --> Q[Queue]
+  Q --> X[Consumers]
+  X --> R[Audit Record]

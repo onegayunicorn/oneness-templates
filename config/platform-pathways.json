@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "status": "roadmap",
+  "description": "ONENESS application and infrastructure pathways mapped to existing foundations and proposed expansion work.",
+  "pathways": [
+    { "id": "consumer", "status": "foundation", "foundations": ["saas-admin"], "capabilities": ["identity", "profiles", "subscriptions", "wallets"] },
+    { "id": "enterprise", "status": "foundation", "foundations": ["saas-admin", "master"], "capabilities": ["organizations", "departments", "rbac", "audit", "policy"] },
+    { "id": "ai", "status": "foundation", "foundations": ["ai-agent-visibility", "ai-brand-visibility", "text-to-image"], "capabilities": ["agents", "rag", "tools", "routing", "orchestration", "human-approval"] },
+    { "id": "commerce", "status": "foundation", "foundations": ["commerce-llms"], "capabilities": ["catalog", "orders", "inventory", "fulfillment", "analytics"] },
+    { "id": "payments", "status": "future", "foundations": ["master", "saas-admin"], "capabilities": ["payment-adapters", "invoicing", "settlement", "reconciliation"] },
+    { "id": "procurement", "status": "foundation", "foundations": ["sourcing-workflows"], "capabilities": ["rfq", "tenders", "supplier-lifecycle", "contracts", "audit"] },
+    { "id": "web", "status": "foundation", "foundations": ["website-builder"], "capabilities": ["sites", "domains", "publishing", "analytics"] },
+    { "id": "mobile", "status": "future", "foundations": ["master"], "capabilities": ["mobile-bff", "notifications", "device-integration"] },
+    { "id": "iot", "status": "foundation", "foundations": ["universal-driver"], "capabilities": ["device-registry", "telemetry", "commands", "firmware", "certificates"] },
+    { "id": "digital-twin", "status": "foundation", "foundations": ["universal-driver"], "capabilities": ["twin-state", "simulation", "events", "alerts", "ai-interpretation"] },
+    { "id": "real-time", "status": "foundation", "foundations": ["durable-chat", "multiplayer-globe"], "capabilities": ["collaboration", "presence", "rooms", "event-streams"] },
+    { "id": "data", "status": "foundation", "foundations": ["worker-d1", "master", "r2-explorer"], "capabilities": ["pipelines", "analytics", "exports", "retention", "audit"] },
+    { "id": "knowledge", "status": "future", "foundations": ["ai-agent-visibility", "text-to-image"], "capabilities": ["knowledge-graphs", "semantic-search", "governed-rag"] },
+    { "id": "government", "status": "future", "foundations": ["sourcing-workflows", "master"], "capabilities": ["delegated-authority", "tendering", "records", "compliance", "reporting"] },
+    { "id": "security", "status": "foundation", "foundations": ["master", "saas-admin"], "capabilities": ["jwt", "validation", "rate-limiting", "rbac", "abac", "tenant-isolation", "audit"] },
+    { "id": "sovereign-runtime", "status": "future", "foundations": ["master"], "capabilities": ["provider-neutral-contracts", "postgres", "redis", "s3", "nats", "self-hosted-ai"] }
+  ]
+}

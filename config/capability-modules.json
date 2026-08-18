@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "status": "roadmap",
+  "modules": [
+    { "id": "identity", "status": "partial", "dependencies": [], "concerns": ["authentication", "profiles", "service-identities"] },
+    { "id": "organisations", "status": "future", "dependencies": ["identity"], "concerns": ["tenants", "departments", "delegated-authority"] },
+    { "id": "authorization", "status": "partial", "dependencies": ["identity", "organisations"], "concerns": ["rbac", "abac", "policy-engine", "resource-permissions"] },
+    { "id": "payments", "status": "future", "dependencies": ["identity", "audit"], "concerns": ["adapters", "ledger", "settlement", "reconciliation"] },
+    { "id": "commerce", "status": "partial", "dependencies": ["identity", "storage", "analytics"], "concerns": ["catalog", "orders", "inventory", "fulfillment"] },
+    { "id": "procurement", "status": "partial", "dependencies": ["identity", "organisations", "authorization", "audit"], "concerns": ["rfq", "bids", "approvals", "contracts"] },
+    { "id": "ai", "status": "partial", "dependencies": ["policy", "audit"], "concerns": ["models", "routing", "agents", "tools", "rag", "human-approval"] },
+    { "id": "knowledge", "status": "future", "dependencies": ["ai", "storage", "analytics"], "concerns": ["semantic-search", "knowledge-graphs", "retrieval"] },
+    { "id": "workflows", "status": "partial", "dependencies": ["events", "authorization", "audit"], "concerns": ["state-machines", "approvals", "scheduling"] },
+    { "id": "messaging", "status": "partial", "dependencies": ["identity", "events"], "concerns": ["rooms", "presence", "notifications"] },
+    { "id": "devices", "status": "partial", "dependencies": ["identity", "events", "audit"], "concerns": ["registration", "telemetry", "commands", "firmware"] },
+    { "id": "digital-twins", "status": "partial", "dependencies": ["devices", "events", "analytics"], "concerns": ["current-state", "history", "simulation", "alerts"] },
+    { "id": "storage", "status": "partial", "dependencies": [], "concerns": ["relational", "key-value", "object-storage", "retention"] },
+    { "id": "analytics", "status": "partial", "dependencies": ["events", "storage"], "concerns": ["metrics", "reporting", "exports"] },
+    { "id": "audit", "status": "partial", "dependencies": ["identity", "storage"], "concerns": ["immutable-records", "correlation", "retention"] },
+    { "id": "events", "status": "future", "dependencies": ["storage"], "concerns": ["commands", "domain-events", "queues", "consumers", "idempotency"] },
+    { "id": "policy", "status": "future", "dependencies": ["identity", "organisations"], "concerns": ["configuration", "approval", "compliance"] },
+    { "id": "deployment", "status": "partial", "dependencies": ["policy"], "concerns": ["preview", "approval-gates", "post-deployment-verification"] }
+  ]
+}
