@@ -383,7 +383,7 @@ export class SourcingWorkflowsTemplate {
 
       return c.json({
         success: true,
-        data: requests.results.map(r => ({
+        data: requests.results.map((r: any) => ({
           ...r,
           data: JSON.parse(r.data),
           results: JSON.parse(r.results)

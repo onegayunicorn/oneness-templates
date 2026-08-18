@@ -380,7 +380,7 @@ export class WebsiteBuilderTemplate {
         success: true,
         stats: {
           totalVisits: visits.keys.length,
-          uniqueVisitors: new Set(visits.keys.map(k => k.name.split(':')[2])).size
+          uniqueVisitors: new Set(visits.keys.map((k: any) => k.name.split(':')[2])).size
         }
       });
     });

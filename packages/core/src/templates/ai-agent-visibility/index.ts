@@ -56,7 +56,7 @@ export class AIAgentVisibilityTemplate {
     // Per-page Markdown for AI training
     this.app.get('/content/:id.md', async (c) => {
       const id = c.req.param('id');
-      const content = await this.getMarkdownContent(id);
+      const content = await this.getMarkdownContent(id!);
       return c.text(content, 200, {
         'Content-Type': 'text/markdown',
         'Cache-Control': 'public, max-age=86400'
@@ -76,7 +76,7 @@ export class AIAgentVisibilityTemplate {
     // JSON-LD structured data
     this.app.get('/data/:id.jsonld', async (c) => {
       const id = c.req.param('id');
-      const jsonld = await this.getJSONLD(id);
+      const jsonld = await this.getJSONLD(id!);
       return c.json(jsonld, 200, {
         'Content-Type': 'application/ld+json',
         'Cache-Control': 'public, max-age=86400'

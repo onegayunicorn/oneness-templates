@@ -33,43 +33,85 @@ const templates: Template[] = [
     name: 'ai-agent-visibility',
     description: 'Make content visible to AI agents across every discovery surface',
     category: 'AI',
-    dependencies: ['hono', '@aws-sdk/client-s3'],
-    files: ['src/index.ts', 'wrangler.jsonc', 'package.json']
+    dependencies: ['hono', '@aws-sdk/client-s3', '@aws-sdk/s3-request-presigner'],
+    files: ['index.ts', 'wrangler.jsonc']
   },
   {
     name: 'ai-brand-visibility',
     description: 'Test AI model mentions of your brand across multiple LLMs',
     category: 'AI',
     dependencies: ['hono', 'hono-rate-limiter'],
-    files: ['src/index.ts', 'wrangler.jsonc', 'package.json']
+    files: ['index.ts']
   },
   {
     name: 'backend-openapi',
     description: 'Complete backend API using Hono + D1 + Vitest',
     category: 'API',
     dependencies: ['hono', '@hono/zod-openapi', '@hono/swagger-ui'],
-    files: ['src/index.ts', 'wrangler.jsonc', 'package.json', 'vitest.config.ts']
+    files: ['index.ts']
   },
   {
     name: 'commerce-llms',
     description: 'Make your product catalog visible to AI agents',
     category: 'Commerce',
     dependencies: ['hono'],
-    files: ['src/index.ts', 'wrangler.jsonc', 'package.json']
+    files: ['index.ts']
   },
   {
     name: 'worker-d1',
     description: 'Cloudflare Worker with native D1 database integration',
     category: 'Database',
     dependencies: ['hono', 'hono-rate-limiter'],
-    files: ['src/index.ts', 'wrangler.jsonc', 'package.json', 'schema.sql']
+    files: ['index.ts']
   },
   {
     name: 'saas-admin',
     description: 'Admin dashboard with authentication and subscription management',
     category: 'SaaS',
-    dependencies: ['hono', 'hono/jwt', 'hono-rate-limiter'],
-    files: ['src/index.ts', 'wrangler.jsonc', 'package.json', 'schema.sql']
+    dependencies: ['hono', 'hono-rate-limiter'],
+    files: ['index.ts']
+  },
+  {
+    name: 'react-router-hono',
+    description: 'React Router + Hono fullstack application with authentication and API',
+    category: 'Fullstack',
+    dependencies: ['hono', '@hono/zod-validator', 'zod', 'hono-rate-limiter'],
+    files: ['index.ts', 'package.json']
+  },
+  {
+    name: 'durable-chat',
+    description: 'Real-time chat application using Durable Objects and WebSockets',
+    category: 'Real-time',
+    dependencies: ['hono', 'hono-rate-limiter'],
+    files: ['index.ts']
+  },
+  {
+    name: 'multiplayer-globe',
+    description: 'Real-time visitor location tracking on a 3D globe',
+    category: 'Real-time',
+    dependencies: ['hono'],
+    files: ['index.ts']
+  },
+  {
+    name: 'r2-explorer',
+    description: 'File explorer interface for Cloudflare R2 buckets',
+    category: 'Storage',
+    dependencies: ['hono', 'hono-rate-limiter', '@aws-sdk/client-s3', '@aws-sdk/s3-request-presigner'],
+    files: ['index.ts']
+  },
+  {
+    name: 'text-to-image',
+    description: 'AI image generation from text prompts using Workers AI',
+    category: 'AI',
+    dependencies: ['hono', 'hono-rate-limiter'],
+    files: ['index.ts']
+  },
+  {
+    name: 'website-builder',
+    description: 'Complete website building platform with drag-and-drop interface',
+    category: 'SaaS',
+    dependencies: ['hono', 'hono-rate-limiter'],
+    files: ['index.ts']
   },
   {
     name: 'master',
@@ -83,21 +125,21 @@ const templates: Template[] = [
     description: 'Typed Cloudflare Worker API with D1, KV caching, authentication, CRUD resources, and health checks',
     category: 'Fullstack',
     dependencies: ['hono', '@hono/zod-validator', 'zod', 'nanoid', 'hono-rate-limiter'],
-    files: ['src/index.ts', 'wrangler.jsonc', 'src/database/schema.sql']
+    files: ['src/index.ts', 'wrangler.jsonc', 'src/database/schema.sql', 'tests/index.test.ts']
   },
   {
     name: 'sourcing-workflows',
     description: 'Commerce sourcing and business workflow automation with AI-assisted supplier discovery',
     category: 'Commerce',
     dependencies: ['hono', '@hono/zod-validator', 'zod', 'nanoid', 'hono-rate-limiter'],
-    files: ['src/index.ts', 'wrangler.jsonc', 'src/database/schema.sql']
+    files: ['src/index.ts', 'wrangler.jsonc', 'src/database/schema.sql', 'tests/index.test.ts']
   },
   {
     name: 'universal-driver',
     description: 'Real-time hardware telemetry, device control, and digital twin management on Cloudflare Workers',
     category: 'IoT',
     dependencies: ['hono', '@hono/zod-validator', 'zod', 'nanoid', 'hono-rate-limiter'],
-    files: ['src/index.ts', 'wrangler.jsonc', 'src/database/schema.sql']
+    files: ['src/index.ts', 'wrangler.jsonc', 'src/database/schema.sql', 'tests/index.test.ts']
   }
 ];
 
@@ -107,14 +149,10 @@ program
   .action(() => {
     console.log(chalk.blue.bold('\n📦 Available Templates\n'));
     const categories = new Map();
-    
     for (const template of templates) {
-      if (!categories.has(template.category)) {
-        categories.set(template.category, []);
-      }
+      if (!categories.has(template.category)) categories.set(template.category, []);
       categories.get(template.category).push(template);
     }
-    
     for (const [category, items] of categories) {
       console.log(chalk.green.bold(`\n${category}:`));
       for (const item of items as Template[]) {
@@ -133,53 +171,25 @@ program
   .option('-d, --directory <dir>', 'Project directory', '.')
   .action(async (templateName, options) => {
     console.log(chalk.blue.bold('\n🚀 Initializing ONENESS Project\n'));
-    
-    // If template not provided, show interactive selection
     if (!templateName) {
       const answers = await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'template',
-          message: 'Select a template:',
-          choices: templates.map(t => ({
-            name: `${t.name} - ${t.description}`,
-            value: t.name
-          }))
-        },
-        {
-          type: 'input',
-          name: 'projectName',
-          message: 'Project name:',
-          default: options.name
-        },
-        {
-          type: 'input',
-          name: 'directory',
-          message: 'Project directory:',
-          default: options.directory
-        }
+        { type: 'list', name: 'template', message: 'Select a template:', choices: templates.map(t => ({ name: `${t.name} - ${t.description}`, value: t.name })) },
+        { type: 'input', name: 'projectName', message: 'Project name:', default: options.name },
+        { type: 'input', name: 'directory', message: 'Project directory:', default: options.directory }
       ]);
-      
       templateName = answers.template;
       options.name = answers.projectName;
       options.directory = answers.directory;
     }
-    
     const template = templates.find(t => t.name === templateName);
     if (!template) {
       console.log(chalk.red(`❌ Template "${templateName}" not found`));
       console.log(chalk.gray('Run "oneness list" to see available templates'));
       process.exit(1);
     }
-    
     const projectDir = path.join(process.cwd(), options.directory);
-    
     console.log(chalk.cyan(`Creating project "${options.name}" in ${projectDir}`));
-    
-    // Create project directory
     await fs.ensureDir(projectDir);
-    
-    // Copy template files
     const templateDir = path.join(__dirname, '..', '..', 'core', 'src', 'templates', templateName);
     for (const file of template.files) {
       const src = path.join(templateDir, file);
@@ -187,8 +197,6 @@ program
       await fs.ensureDir(path.dirname(dest));
       await fs.copy(src, dest);
     }
-    
-    // Generate package.json
     const packageJson = {
       name: options.name,
       version: '1.0.0',
@@ -200,7 +208,7 @@ program
         build: 'tsc --noEmit',
         test: 'vitest run'
       },
-      dependencies: {},
+      dependencies: {} as Record<string, string>,
       devDependencies: {
         '@cloudflare/workers-types': '^4.20240821.0',
         'wrangler': '^4.0.0',
@@ -208,7 +216,6 @@ program
         'vitest': '^3.2.4'
       }
     };
-    
     const compatibleVersions: Record<string, string> = {
       hono: '^4.7.0',
       '@hono/zod-validator': '^0.4.0',
@@ -220,33 +227,19 @@ program
       '@hono/zod-openapi': '^0.19.0',
       '@hono/swagger-ui': '^0.5.0'
     };
-    for (const dep of template.dependencies) {
-      packageJson.dependencies[dep] = compatibleVersions[dep] || 'latest';
-    }
-    
+    for (const dep of template.dependencies) packageJson.dependencies[dep] = compatibleVersions[dep] || 'latest';
     await fs.writeJSON(path.join(projectDir, 'package.json'), packageJson, { spaces: 2 });
-    
-    // Create tsconfig.json
     const tsconfig = {
       compilerOptions: {
-        target: 'ES2022',
-        module: 'ESNext',
-        lib: ['ES2022'],
-        strict: true,
-        skipLibCheck: true,
-        esModuleInterop: true,
-        moduleResolution: 'node',
-        resolveJsonModule: true,
-        isolatedModules: true,
-        noEmit: true,
+        target: 'ES2022', module: 'ESNext', lib: ['ES2022'], strict: true,
+        skipLibCheck: true, esModuleInterop: true, moduleResolution: 'node',
+        resolveJsonModule: true, isolatedModules: true, noEmit: true,
         types: ['@cloudflare/workers-types']
       },
       include: ['src/**/*', 'index.ts', 'tests/**/*'],
       exclude: ['node_modules', 'dist']
     };
-    
     await fs.writeJSON(path.join(projectDir, 'tsconfig.json'), tsconfig, { spaces: 2 });
-    
     console.log(chalk.green('✅ Project initialized successfully!'));
     console.log(chalk.cyan('\nNext steps:'));
     console.log(chalk.gray(`  cd ${options.directory}`));
@@ -261,16 +254,9 @@ program
   .option('-e, --env <env>', 'Environment (production, staging)', 'production')
   .action(async (options) => {
     console.log(chalk.blue.bold('\n🚀 Deploying to Cloudflare Workers\n'));
-    
     try {
-      const { stdout, stderr } = await execAsync('wrangler deploy', {
-        env: { ...process.env, CLOUDFLARE_ENV: options.env }
-      });
-      
-      if (stderr) {
-        console.log(chalk.yellow('⚠️ ', stderr));
-      }
-      
+      const { stdout, stderr } = await execAsync('wrangler deploy', { env: { ...process.env, CLOUDFLARE_ENV: options.env } });
+      if (stderr) console.log(chalk.yellow('⚠️ ', stderr));
       console.log(stdout);
       console.log(chalk.green('✅ Deployment successful!'));
     } catch (error) {
@@ -284,14 +270,9 @@ program
   .description('Build the current project')
   .action(async () => {
     console.log(chalk.blue.bold('\n🔨 Building project\n'));
-    
     try {
       const { stdout, stderr } = await execAsync('vite build');
-      
-      if (stderr) {
-        console.log(chalk.yellow('⚠️ ', stderr));
-      }
-      
+      if (stderr) console.log(chalk.yellow('⚠️ ', stderr));
       console.log(stdout);
       console.log(chalk.green('✅ Build completed successfully!'));
     } catch (error) {
@@ -306,17 +287,13 @@ program
   .action(async () => {
     const packageJson = await fs.readJSON('package.json');
     const wranglerJson = await fs.readJSON('wrangler.jsonc').catch(() => null);
-    
     console.log(chalk.blue.bold('\n📊 Project Information\n'));
     console.log(chalk.cyan('Name:'), packageJson.name);
     console.log(chalk.cyan('Version:'), packageJson.version);
     console.log(chalk.cyan('Scripts:'));
-    for (const [name, script] of Object.entries(packageJson.scripts || {})) {
-      console.log(`  ${chalk.gray(name)}: ${script}`);
-    }
+    for (const [name, script] of Object.entries(packageJson.scripts || {})) console.log(`  ${chalk.gray(name)}: ${script}`);
     console.log(chalk.cyan('Dependencies:'), Object.keys(packageJson.dependencies || {}).length);
     console.log(chalk.cyan('Dev Dependencies:'), Object.keys(packageJson.devDependencies || {}).length);
-    
     if (wranglerJson) {
       console.log(chalk.cyan('Worker Name:'), wranglerJson.name || 'Not set');
       console.log(chalk.cyan('Compatibility Date:'), wranglerJson.compatibility_date || 'Not set');

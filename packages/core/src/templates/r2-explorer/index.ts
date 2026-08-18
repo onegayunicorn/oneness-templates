@@ -119,7 +119,7 @@ export class R2ExplorerTemplate {
     // Upload file (protected)
     this.app.post('/api/upload', auth, async (c) => {
       const formData = await c.req.formData();
-      const file = formData.get('file') as File;
+      const file = formData.get('file') as unknown as File;
       const path = formData.get('path') as string || '';
       
       if (!file) {

@@ -180,7 +180,7 @@ export class VisitorTracker {
 
   private async broadcast(message: any) {
     const serialized = JSON.stringify(message);
-    const promises = [];
+    const promises: Promise<void>[] = [];
     
     for (const [id, ws] of this.websockets) {
       try {

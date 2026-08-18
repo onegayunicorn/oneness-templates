@@ -79,7 +79,7 @@ export class BackendOpenAPITemplate {
       }
     });
 
-    (this.app as any).openapi(healthRoute, async (c) => {
+    (this.app as any).openapi(healthRoute, async (c: any) => {
       return c.json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
@@ -126,7 +126,7 @@ export class BackendOpenAPITemplate {
       }
     });
 
-    (this.app as any).openapi(createUserRoute, async (c) => {
+    (this.app as any).openapi(createUserRoute, async (c: any) => {
       const data = c.req.valid('json') as any;
       const db = (c.env as any).DB;
       
@@ -176,7 +176,7 @@ export class BackendOpenAPITemplate {
       }
     });
 
-    (this.app as any).openapi(getUsersRoute, async (c) => {
+    (this.app as any).openapi(getUsersRoute, async (c: any) => {
       const { page, limit } = c.req.valid('query');
       const db = (c.env as any).DB;
       
@@ -231,7 +231,7 @@ export class BackendOpenAPITemplate {
       }
     });
 
-    (this.app as any).openapi(getUserRoute, async (c) => {
+    (this.app as any).openapi(getUserRoute, async (c: any) => {
       const { id } = c.req.valid('param');
       const db = (c.env as any).DB;
       
@@ -288,7 +288,7 @@ export class BackendOpenAPITemplate {
       }
     });
 
-    (this.app as any).openapi(updateUserRoute, async (c) => {
+    (this.app as any).openapi(updateUserRoute, async (c: any) => {
       const { id } = c.req.valid('param');
       const data = c.req.valid('json') as any;
       const db = (c.env as any).DB;
@@ -363,7 +363,7 @@ export class BackendOpenAPITemplate {
       }
     });
 
-    (this.app as any).openapi(deleteUserRoute, async (c) => {
+    (this.app as any).openapi(deleteUserRoute, async (c: any) => {
       const { id } = c.req.valid('param');
       const db = (c.env as any).DB;
       

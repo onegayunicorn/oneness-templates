@@ -286,7 +286,7 @@ export class UniversalDriverTemplate {
 
       return c.json({
         success: true,
-        data: result.results.map(r => ({
+        data: result.results.map((r: any) => ({
           ...r,
           metrics: JSON.parse(r.metrics),
           location: r.location ? JSON.parse(r.location) : null,
@@ -385,7 +385,7 @@ export class UniversalDriverTemplate {
         success: true,
         data: {
           ...twin,
-          history: telemetry.results.map(r => ({
+          history: telemetry.results.map((r: any) => ({
             metrics: JSON.parse(r.metrics),
             timestamp: r.created_at
           }))

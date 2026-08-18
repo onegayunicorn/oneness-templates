@@ -268,7 +268,7 @@ export class ChatRoom {
       data: message
     });
     
-    const promises = [];
+    const promises: Promise<void>[] = [];
     for (const [id, ws] of this.websockets) {
       try {
         ws.send(serialized);
