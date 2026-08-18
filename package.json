@@ -1,0 +1,22 @@
+{
+  "name": "oneness-templates",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Reusable Cloudflare Workers and full-stack templates for ONENESS Architecture.",
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "format:check": "prettier --check .",
+    "cli": "pnpm --filter @oneness/cli start"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

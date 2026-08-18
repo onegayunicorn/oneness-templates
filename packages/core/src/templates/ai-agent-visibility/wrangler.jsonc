@@ -1,0 +1,36 @@
+{
+  "name": "ai-agent-visibility",
+  "compatibility_date": "2026-08-17",
+  "main": "src/index.ts",
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "AI_VISIBILITY_BUCKET": "ai-content-bucket"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "KV_CONTENT",
+      "id": "content-store"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "routes": [
+    {
+      "pattern": "ai-agent.onegayunicorn.com",
+      "zone_id": "YOUR_ZONE_ID"
+    }
+  ],
+  "env": {
+    "production": {
+      "routes": [
+        {
+          "pattern": "ai-agent.onegayunicorn.com",
+          "zone_id": "YOUR_ZONE_ID"
+        }
+      ]
+    }
+  }
+}

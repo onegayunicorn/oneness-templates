@@ -1,0 +1,27 @@
+{
+  "name": "@oneness/cli",
+  "version": "2.0.0",
+  "description": "CLI for initializing and deploying ONENESS templates.",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@oneness/core": "workspace:*",
+    "chalk": "^5.4.0",
+    "commander": "^13.1.0",
+    "fs-extra": "^11.3.0",
+    "inquirer": "^12.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  },
+  "bin": {
+    "oneness": "dist/index.js"
+  }
+}
