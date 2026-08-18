@@ -20,7 +20,7 @@ interface ModelConfig {
 }
 
 export class WorkerD1Template {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
   private models: Map<string, ModelConfig>;
 
@@ -60,7 +60,7 @@ export class WorkerD1Template {
   private setupRoutes() {
     // Health check
     this.app.get('/health', async (c) => {
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       try {
         await db.prepare('SELECT 1').run();
         return c.json({
@@ -79,7 +79,7 @@ export class WorkerD1Template {
 
     // Database info
     this.app.get('/db-info', async (c) => {
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const tables = await db.prepare(
         "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
       ).all();
@@ -100,7 +100,7 @@ export class WorkerD1Template {
         return c.json({ error: 'Invalid schema' }, 400);
       }
       
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const columns = Object.entries(schema).map(([name, type]) => 
         `${name} ${type}`
       ).join(', ');
@@ -131,7 +131,7 @@ export class WorkerD1Template {
         return c.json({ error: 'Data must be an array' }, 400);
       }
       
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const results = [];
       const errors = [];
       
@@ -170,7 +170,7 @@ export class WorkerD1Template {
         return c.json({ error: 'Query is required' }, 400);
       }
       
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       
       try {
         const result = await db.prepare(query).bind(...(params || [])).all();
@@ -196,7 +196,7 @@ export class WorkerD1Template {
         return c.json({ error: 'Operations must be a non-empty array' }, 400);
       }
       
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       
       try {
         const results = [];
@@ -263,7 +263,7 @@ export class WorkerD1Template {
         data = model.hooks.beforeCreate(data);
       }
       
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const id = crypto.randomUUID();
       const now = new Date().toISOString();
       const columns = Object.keys(data);
@@ -302,7 +302,7 @@ export class WorkerD1Template {
       const limitNum = parseInt(limit as string) || 20;
       const offset = (pageNum - 1) * limitNum;
       
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       let query = `SELECT * FROM ${model.tableName}`;
       const params = [];
       
@@ -346,7 +346,7 @@ export class WorkerD1Template {
         return c.json({ error: `Model ${name} not found` }, 404);
       }
       
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const result = await db.prepare(
         `SELECT * FROM ${model.tableName} WHERE id = ?`
       ).bind(id).first();
@@ -383,7 +383,7 @@ export class WorkerD1Template {
         data = model.hooks.beforeUpdate(data);
       }
       
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const now = new Date().toISOString();
       const updates = Object.entries(data).map(([key, value]) => `${key} = ?`);
       const values = Object.values(data);
@@ -421,7 +421,7 @@ export class WorkerD1Template {
         model.hooks.beforeDelete(id);
       }
       
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const result = await db.prepare(
         `DELETE FROM ${model.tableName} WHERE id = ?`
       ).bind(id).run();

@@ -205,7 +205,7 @@ export class VisitorTracker {
 
 // Main Worker
 export class MultiplayerGlobeTemplate {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
 
   constructor(env: any) {

@@ -30,7 +30,7 @@ interface GeneratedImage {
 }
 
 export class TextToImageTemplate {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
 
   constructor(env: any) {
@@ -75,7 +75,7 @@ export class TextToImageTemplate {
 
       try {
         // Use Cloudflare Workers AI for image generation
-        const ai = c.env.AI;
+        const ai = (c.env as any).AI;
         const response = await ai.run('@cf/stabilityai/stable-diffusion-xl-base-1.0', {
           prompt: data.prompt,
           negative_prompt: data.negativePrompt || '',
@@ -87,7 +87,7 @@ export class TextToImageTemplate {
         });
 
         // Store image in R2
-        const bucket = c.env.R2_BUCKET;
+        const bucket = (c.env as any).R2_BUCKET;
         const key = `generated/${id}.png`;
         const imageData = response.image;
 
@@ -99,7 +99,7 @@ export class TextToImageTemplate {
         });
 
         // Generate signed URL
-        const url = `https://${c.env.WORKER_NAME}.workers.dev/api/image/${id}`;
+        const url = `https://${(c.env as any).WORKER_NAME}.workers.dev/api/image/${id}`;
 
         // Store metadata in KV
         const metadata: GeneratedImage = {
@@ -117,7 +117,7 @@ export class TextToImageTemplate {
           }
         };
 
-        await c.env.KV_IMAGES.put(id, JSON.stringify(metadata));
+        await (c.env as any).KV_IMAGES.put(id, JSON.stringify(metadata));
 
         return c.json({
           success: true,
@@ -141,7 +141,7 @@ export class TextToImageTemplate {
     // Get generated image
     this.app.get('/api/image/:id', async (c) => {
       const id = c.req.param('id');
-      const bucket = c.env.R2_BUCKET;
+      const bucket = (c.env as any).R2_BUCKET;
       const key = `generated/${id}.png`;
 
       try {
@@ -163,7 +163,7 @@ export class TextToImageTemplate {
     this.app.get('/api/metadata/:id', async (c) => {
       const id = c.req.param('id');
       
-      const metadata = await c.env.KV_IMAGES.get(id);
+      const metadata = await (c.env as any).KV_IMAGES.get(id);
       if (!metadata) {
         return c.json({ error: 'Image not found' }, 404);
       }
@@ -178,14 +178,14 @@ export class TextToImageTemplate {
     this.app.get('/api/images', async (c) => {
       const { limit = '20', cursor } = c.req.query();
       
-      const images = await c.env.KV_IMAGES.list({
+      const images = await (c.env as any).KV_IMAGES.list({
         limit: parseInt(limit),
         cursor: cursor
       });
 
       const data = [];
       for (const key of images.keys) {
-        const metadata = await c.env.KV_IMAGES.get(key.name);
+        const metadata = await (c.env as any).KV_IMAGES.get(key.name);
         if (metadata) {
           data.push(JSON.parse(metadata));
         }
@@ -203,11 +203,11 @@ export class TextToImageTemplate {
     this.app.delete('/api/image/:id', async (c) => {
       const id = c.req.param('id');
       
-      const bucket = c.env.R2_BUCKET;
+      const bucket = (c.env as any).R2_BUCKET;
       const key = `generated/${id}.png`;
       
       await bucket.delete(key);
-      await c.env.KV_IMAGES.delete(id);
+      await (c.env as any).KV_IMAGES.delete(id);
 
       return c.json({
         success: true,

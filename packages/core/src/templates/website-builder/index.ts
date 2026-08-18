@@ -58,7 +58,7 @@ interface Section {
 }
 
 export class WebsiteBuilderTemplate {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
   private jwtSecret: string;
 
@@ -82,8 +82,8 @@ export class WebsiteBuilderTemplate {
     this.app.use('/api/*', limiter);
 
     // Auth for protected routes
-    this.app.use('/api/websites/*', jwt({ secret: this.jwtSecret }));
-    this.app.use('/api/publish/*', jwt({ secret: this.jwtSecret }));
+    this.app.use('/api/websites/*', jwt({ secret: this.jwtSecret, alg: 'HS256' }));
+    this.app.use('/api/publish/*', jwt({ secret: this.jwtSecret, alg: 'HS256' }));
   }
 
   private setupRoutes() {
@@ -99,7 +99,7 @@ export class WebsiteBuilderTemplate {
     // Auth endpoints
     this.app.post('/api/auth/login', async (c) => {
       const { email, password } = await c.req.json();
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const user = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
       
@@ -121,7 +121,7 @@ export class WebsiteBuilderTemplate {
 
     this.app.post('/api/auth/register', async (c) => {
       const { email, password, name } = await c.req.json();
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const existing = await db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
       if (existing) {
@@ -145,8 +145,8 @@ export class WebsiteBuilderTemplate {
 
     // Website CRUD
     this.app.get('/api/websites', async (c) => {
-      const payload = c.get('jwtPayload');
-      const db = c.env.DB;
+      const payload = c.get('jwtPayload') as any;
+      const db = (c.env as any).DB;
 
       const websites = await db.prepare(
         'SELECT * FROM websites WHERE user_id = ? AND status != "deleted"'
@@ -159,9 +159,9 @@ export class WebsiteBuilderTemplate {
     });
 
     this.app.post('/api/websites', async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const { name, template, domain } = await c.req.json();
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const id = crypto.randomUUID();
       const now = new Date().toISOString();
@@ -192,9 +192,9 @@ export class WebsiteBuilderTemplate {
     });
 
     this.app.get('/api/websites/:id', async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const id = c.req.param('id');
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const website = await db.prepare(
         'SELECT * FROM websites WHERE id = ? AND user_id = ?'
@@ -211,10 +211,10 @@ export class WebsiteBuilderTemplate {
     });
 
     this.app.put('/api/websites/:id', async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const id = c.req.param('id');
       const data = await c.req.json();
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const existing = await db.prepare(
         'SELECT * FROM websites WHERE id = ? AND user_id = ?'
@@ -255,9 +255,9 @@ export class WebsiteBuilderTemplate {
     });
 
     this.app.delete('/api/websites/:id', async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const id = c.req.param('id');
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const result = await db.prepare(
         'UPDATE websites SET status = "deleted", updated_at = ? WHERE id = ? AND user_id = ?'
@@ -275,10 +275,10 @@ export class WebsiteBuilderTemplate {
 
     // Content management
     this.app.put('/api/websites/:id/content', async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const id = c.req.param('id');
       const { content } = await c.req.json();
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const website = await db.prepare(
         'SELECT * FROM websites WHERE id = ? AND user_id = ?'
@@ -301,9 +301,9 @@ export class WebsiteBuilderTemplate {
 
     // Publish website
     this.app.post('/api/publish/:id', async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const id = c.req.param('id');
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const website = await db.prepare(
         'SELECT * FROM websites WHERE id = ? AND user_id = ?'
@@ -334,7 +334,7 @@ export class WebsiteBuilderTemplate {
       const id = c.req.param('id');
       const path = c.req.path.replace(`/site/${id}`, '');
       
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const website = await db.prepare(
         'SELECT * FROM websites WHERE id = ? AND status = "published"'
       ).bind(id).first();
@@ -359,7 +359,7 @@ export class WebsiteBuilderTemplate {
       const id = c.req.param('id');
       const data = await c.req.json();
       
-      await c.env.KV_ANALYTICS.put(
+      await (c.env as any).KV_ANALYTICS.put(
         `visit:${id}:${Date.now()}`,
         JSON.stringify({
           ...data,
@@ -371,10 +371,10 @@ export class WebsiteBuilderTemplate {
     });
 
     this.app.get('/api/analytics/:id/stats', async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const id = c.req.param('id');
       
-      const visits = await c.env.KV_ANALYTICS.list({ prefix: `visit:${id}:` });
+      const visits = await (c.env as any).KV_ANALYTICS.list({ prefix: `visit:${id}:` });
       
       return c.json({
         success: true,

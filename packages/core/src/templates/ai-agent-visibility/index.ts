@@ -24,7 +24,7 @@ interface AIAgentVisibilityConfig {
 }
 
 export class AIAgentVisibilityTemplate {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
   private bucket: string;
 

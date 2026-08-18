@@ -43,7 +43,7 @@ interface Subscription {
 }
 
 export class SaaSAdminTemplate {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
   private jwtSecret: string;
 
@@ -77,7 +77,7 @@ export class SaaSAdminTemplate {
     // Login endpoint
     this.app.post('/api/auth/login', async (c) => {
       const { email, password } = await c.req.json();
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       
       const user = await db.prepare(
         'SELECT * FROM users WHERE email = ?'
@@ -112,7 +112,7 @@ export class SaaSAdminTemplate {
     // Register endpoint
     this.app.post('/api/auth/register', async (c) => {
       const { email, password, name, organizationName } = await c.req.json();
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       
       // Check if user exists
       const existing = await db.prepare(
@@ -159,7 +159,8 @@ export class SaaSAdminTemplate {
 
     // Protected routes
     this.app.use('/api/*', jwt({
-      secret: this.jwtSecret
+      secret: this.jwtSecret,
+      alg: 'HS256'
     }));
   }
 
@@ -180,7 +181,7 @@ export class SaaSAdminTemplate {
   private setupRoutes() {
     // Admin dashboard data
     this.app.get('/api/admin/stats', async (c) => {
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       
       const [totalUsers, totalOrgs, activeSubscriptions, revenue] = await Promise.all([
         db.prepare('SELECT COUNT(*) as count FROM users').first(),
@@ -203,7 +204,7 @@ export class SaaSAdminTemplate {
 
     // Organization management
     this.app.get('/api/admin/organizations', async (c) => {
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const { page = '1', limit = '20', search } = c.req.query();
       
       const pageNum = parseInt(page);
@@ -238,7 +239,7 @@ export class SaaSAdminTemplate {
 
     this.app.get('/api/admin/organizations/:id', async (c) => {
       const id = c.req.param('id');
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       
       const org = await db.prepare('SELECT * FROM organizations WHERE id = ?').bind(id).first();
       
@@ -260,7 +261,7 @@ export class SaaSAdminTemplate {
     this.app.put('/api/admin/organizations/:id', async (c) => {
       const id = c.req.param('id');
       const data = await c.req.json();
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       
       const updates = [];
       const values = [];
@@ -292,7 +293,7 @@ export class SaaSAdminTemplate {
 
     // User management
     this.app.get('/api/admin/users', async (c) => {
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const { page = '1', limit = '20', role, status } = c.req.query();
       
       const pageNum = parseInt(page);
@@ -337,7 +338,7 @@ export class SaaSAdminTemplate {
     this.app.put('/api/admin/users/:id', async (c) => {
       const id = c.req.param('id');
       const data = await c.req.json();
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       
       const updates = [];
       const values = [];
@@ -369,7 +370,7 @@ export class SaaSAdminTemplate {
 
     // Subscription management
     this.app.get('/api/admin/subscriptions', async (c) => {
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const { page = '1', limit = '20', status } = c.req.query();
       
       const pageNum = parseInt(page);
@@ -404,7 +405,7 @@ export class SaaSAdminTemplate {
 
     // Analytics endpoints
     this.app.get('/api/admin/analytics/revenue', async (c) => {
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       const { period = 'monthly' } = c.req.query();
       
       let query = '';
@@ -445,7 +446,7 @@ export class SaaSAdminTemplate {
 
     // Health endpoint
     this.app.get('/api/health', async (c) => {
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
       try {
         await db.prepare('SELECT 1').run();
         return c.json({

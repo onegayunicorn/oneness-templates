@@ -40,7 +40,7 @@ interface ProductCategory {
 }
 
 export class CommerceLLMsTemplate {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
 
   constructor(env: any) {
@@ -139,7 +139,7 @@ export class CommerceLLMsTemplate {
   }
 
   private async getProducts(c: any): Promise<Product[]> {
-    const db = c.env.DB;
+    const db = (c.env as any).DB;
     const products = await db.prepare(
       'SELECT * FROM products WHERE availability != "out_of_stock"'
     ).all();
@@ -147,7 +147,7 @@ export class CommerceLLMsTemplate {
   }
 
   private async getCategories(c: any): Promise<ProductCategory[]> {
-    const db = c.env.DB;
+    const db = (c.env as any).DB;
     const categories = await db.prepare(
       'SELECT * FROM categories ORDER BY name ASC'
     ).all();

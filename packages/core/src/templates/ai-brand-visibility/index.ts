@@ -15,7 +15,7 @@ interface BrandTest {
 }
 
 export class AIBrandVisibilityTemplate {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
 
   constructor(env: any) {

@@ -5,7 +5,7 @@ import { logger } from 'hono/logger';
 import { jwt } from 'hono/jwt';
 import { rateLimiter } from 'hono-rate-limiter';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 
 interface FileItem {
   key: string;
@@ -17,7 +17,7 @@ interface FileItem {
 }
 
 export class R2ExplorerTemplate {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
   private s3Client: S3Client;
   private bucket: string;
@@ -52,7 +52,7 @@ export class R2ExplorerTemplate {
 
   private setupRoutes() {
     // Auth middleware for protected routes
-    const auth = jwt({ secret: this.env.JWT_SECRET || 'your-secret-key' });
+    const auth = jwt({ secret: this.env.JWT_SECRET || 'your-secret-key', alg: 'HS256' });
 
     // Public endpoints
     this.app.get('/api/health', (c) => {
@@ -73,7 +73,7 @@ export class R2ExplorerTemplate {
         Delimiter: delimiter
       };
 
-      const response = await this.s3Client.send(new ListObjectsV2Command(command));
+      const response = await this.s3Client.send(new ListObjectsV2Command(command)) as any;
       
       const files: FileItem[] = [];
       
@@ -276,7 +276,7 @@ export class R2ExplorerTemplate {
         MaxKeys: 1
       };
       
-      const response = await this.s3Client.send(new ListObjectsV2Command(command));
+      const response = await this.s3Client.send(new ListObjectsV2Command(command)) as any;
       
       return c.json({
         success: true,
@@ -300,7 +300,7 @@ export class R2ExplorerTemplate {
         Prefix: prefix
       };
       
-      const response = await this.s3Client.send(new ListObjectsV2Command(command));
+      const response = await this.s3Client.send(new ListObjectsV2Command(command)) as any;
       
       const results = [];
       if (response.Contents) {

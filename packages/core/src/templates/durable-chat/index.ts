@@ -283,7 +283,7 @@ export class ChatRoom {
 
 // Main Worker
 export class DurableChatTemplate {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
 
   constructor(env: any) {

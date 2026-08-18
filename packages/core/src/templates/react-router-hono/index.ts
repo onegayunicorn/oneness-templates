@@ -29,7 +29,7 @@ const TaskSchema = z.object({
 });
 
 export class ReactRouterHonoTemplate {
-  private app: Hono;
+  private app: Hono<any>;
   private env: any;
   private jwtSecret: string;
 
@@ -71,7 +71,7 @@ export class ReactRouterHonoTemplate {
     // Auth routes
     this.app.post('/api/auth/register', zValidator('json', UserSchema), async (c) => {
       const data = await c.req.valid('json');
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       // Check if user exists
       const existing = await db.prepare(
@@ -105,7 +105,7 @@ export class ReactRouterHonoTemplate {
 
     this.app.post('/api/auth/login', zValidator('json', LoginSchema), async (c) => {
       const data = await c.req.valid('json');
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const user = await db.prepare(
         'SELECT * FROM users WHERE email = ?'
@@ -134,9 +134,9 @@ export class ReactRouterHonoTemplate {
       });
     });
 
-    this.app.get('/api/auth/me', jwt({ secret: this.jwtSecret }), async (c) => {
-      const payload = c.get('jwtPayload');
-      const db = c.env.DB;
+    this.app.get('/api/auth/me', jwt({ secret: this.jwtSecret, alg: 'HS256' }), async (c) => {
+      const payload = c.get('jwtPayload') as any;
+      const db = (c.env as any).DB;
 
       const user = await db.prepare(
         'SELECT id, email, name, created_at FROM users WHERE id = ?'
@@ -150,11 +150,11 @@ export class ReactRouterHonoTemplate {
     });
 
     // Task routes (protected)
-    this.app.use('/api/tasks/*', jwt({ secret: this.jwtSecret }));
+    this.app.use('/api/tasks/*', jwt({ secret: this.jwtSecret, alg: 'HS256' }));
 
     this.app.get('/api/tasks', async (c) => {
-      const payload = c.get('jwtPayload');
-      const db = c.env.DB;
+      const payload = c.get('jwtPayload') as any;
+      const db = (c.env as any).DB;
       const { status, page = '1', limit = '20' } = c.req.query();
 
       const pageNum = parseInt(page);
@@ -190,9 +190,9 @@ export class ReactRouterHonoTemplate {
     });
 
     this.app.post('/api/tasks', zValidator('json', TaskSchema), async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const data = await c.req.valid('json');
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const id = crypto.randomUUID();
       const now = new Date().toISOString();
@@ -223,9 +223,9 @@ export class ReactRouterHonoTemplate {
     });
 
     this.app.get('/api/tasks/:id', async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const id = c.req.param('id');
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const task = await db.prepare(
         'SELECT * FROM tasks WHERE id = ? AND user_id = ?'
@@ -242,10 +242,10 @@ export class ReactRouterHonoTemplate {
     });
 
     this.app.put('/api/tasks/:id', zValidator('json', TaskSchema.partial()), async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const id = c.req.param('id');
       const data = await c.req.valid('json');
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const existing = await db.prepare(
         'SELECT * FROM tasks WHERE id = ? AND user_id = ?'
@@ -286,9 +286,9 @@ export class ReactRouterHonoTemplate {
     });
 
     this.app.delete('/api/tasks/:id', async (c) => {
-      const payload = c.get('jwtPayload');
+      const payload = c.get('jwtPayload') as any;
       const id = c.req.param('id');
-      const db = c.env.DB;
+      const db = (c.env as any).DB;
 
       const result = await db.prepare(
         'DELETE FROM tasks WHERE id = ? AND user_id = ?'
@@ -305,9 +305,9 @@ export class ReactRouterHonoTemplate {
     });
 
     // Stats endpoint
-    this.app.get('/api/stats', jwt({ secret: this.jwtSecret }), async (c) => {
-      const payload = c.get('jwtPayload');
-      const db = c.env.DB;
+    this.app.get('/api/stats', jwt({ secret: this.jwtSecret, alg: 'HS256' }), async (c) => {
+      const payload = c.get('jwtPayload') as any;
+      const db = (c.env as any).DB;
 
       const [total, completed, inProgress, todo] = await Promise.all([
         db.prepare('SELECT COUNT(*) as count FROM tasks WHERE user_id = ?').bind(payload.sub).first(),
@@ -328,12 +328,7 @@ export class ReactRouterHonoTemplate {
     });
 
     // Serve React app for non-API routes
-    this.app.get('*', serveStatic({
-      root: './dist',
-      notFoundHandler: (c) => {
-        return c.html('<html><body><h1>404 Not Found</h1></body></html>', 404);
-      }
-    }));
+    this.app.get('*', serveStatic({ root: './dist' }));
   }
 
   private async generateToken(user: any): Promise<string> {
