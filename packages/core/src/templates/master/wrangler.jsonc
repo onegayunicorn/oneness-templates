@@ -1,7 +1,7 @@
 {
   "name": "oneness-api-starter",
   "compatibility_date": "2026-08-17",
-  "main": "src/index.ts",
+  "main": "index.ts",
   "observability": {
     "enabled": true,
     "logs": {

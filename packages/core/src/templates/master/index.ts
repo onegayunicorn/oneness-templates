@@ -1168,7 +1168,26 @@ export function createMasterTemplate(env: Bindings) {
 }
 
 // ============================================================
-// 9. EXPORTS
+// 9. DURABLE OBJECTS
+// ============================================================
+
+export class WebSocketRoom {
+  constructor(private readonly state: DurableObjectState, private readonly env: Bindings) {}
+
+  async fetch(request: Request): Promise<Response> {
+    if (request.headers.get('Upgrade') !== 'websocket') {
+      return new Response('WebSocket upgrade required', { status: 426 });
+    }
+    const pair = new WebSocketPair();
+    const [client, server] = Object.values(pair);
+    server.accept();
+    server.addEventListener('message', (event) => server.send(String(event.data)));
+    return new Response(null, { status: 101, webSocket: client });
+  }
+}
+
+// ============================================================
+// 10. EXPORTS
 // ============================================================
 
 export default {
