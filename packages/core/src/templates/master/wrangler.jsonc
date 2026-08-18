@@ -1,0 +1,117 @@
+{
+  "name": "oneness-api-starter",
+  "compatibility_date": "2026-08-17",
+  "main": "src/index.ts",
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "level": "info"
+    },
+    "metrics": {
+      "enabled": true,
+      "request_headers": true,
+      "response_headers": true
+    }
+  },
+  "vars": {
+    "API_VERSION": "1.0.0",
+    "ENVIRONMENT": "production",
+    "PROJECT_NAME": "oneness-api"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "oneness_api_db",
+      "database_id": "your-d1-database-id"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV_CACHE",
+      "id": "your-kv-cache-id"
+    },
+    {
+      "binding": "KV_SESSIONS",
+      "id": "your-kv-sessions-id"
+    },
+    {
+      "binding": "KV_RATE_LIMIT",
+      "id": "your-kv-rate-limit-id"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "R2",
+      "bucket_name": "oneness-assets",
+      "preview_bucket_name": "oneness-assets-preview"
+    }
+  ],
+  "queues": {
+    "consumers": [
+      {
+        "queue": "oneness-queue",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5
+      }
+    ]
+  },
+  "ai": {
+    "binding": "AI"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "WEBSOCKET_ROOM",
+        "class_name": "WebSocketRoom"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["WebSocketRoom"]
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "0 0 * * *"
+    ]
+  },
+  "routes": [
+    {
+      "pattern": "api.oneness.workers.dev",
+      "custom_domain": true
+    }
+  ],
+  "env": {
+    "production": {
+      "vars": {
+        "ENVIRONMENT": "production"
+      },
+      "routes": [
+        {
+          "pattern": "api.oneness.com",
+          "zone_id": "your-zone-id"
+        }
+      ]
+    },
+    "staging": {
+      "vars": {
+        "ENVIRONMENT": "staging"
+      },
+      "routes": [
+        {
+          "pattern": "staging-api.oneness.com",
+          "zone_id": "your-zone-id"
+        }
+      ]
+    },
+    "development": {
+      "vars": {
+        "ENVIRONMENT": "development"
+      },
+      "routes": []
+    }
+  }
+}

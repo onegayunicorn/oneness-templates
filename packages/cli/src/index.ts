@@ -70,6 +70,34 @@ const templates: Template[] = [
     category: 'SaaS',
     dependencies: ['hono', 'hono/jwt', 'hono-rate-limiter'],
     files: ['src/index.ts', 'wrangler.jsonc', 'package.json', 'schema.sql']
+  },
+  {
+    name: 'master',
+    description: 'Production-ready Cloudflare Worker API starter with D1, KV, authentication, rate limiting, and WebSockets',
+    category: 'Fullstack',
+    dependencies: ['hono', '@hono/zod-validator', 'zod', 'nanoid', 'hono-rate-limiter'],
+    files: ['index.ts', 'wrangler.jsonc', 'tests/index.test.ts', 'README.md']
+  },
+  {
+    name: 'cloudflare-api-starter',
+    description: 'Typed Cloudflare Worker API with D1, KV caching, authentication, CRUD resources, and health checks',
+    category: 'Fullstack',
+    dependencies: ['hono', '@hono/zod-validator', 'zod', 'nanoid', 'hono-rate-limiter'],
+    files: ['src/index.ts', 'wrangler.jsonc', 'src/database/schema.sql']
+  },
+  {
+    name: 'sourcing-workflows',
+    description: 'Commerce sourcing and business workflow automation with AI-assisted supplier discovery',
+    category: 'Commerce',
+    dependencies: ['hono', '@hono/zod-validator', 'zod', 'nanoid', 'hono-rate-limiter'],
+    files: ['src/index.ts', 'wrangler.jsonc', 'src/database/schema.sql']
+  },
+  {
+    name: 'universal-driver',
+    description: 'Real-time hardware telemetry, device control, and digital twin management on Cloudflare Workers',
+    category: 'IoT',
+    dependencies: ['hono', '@hono/zod-validator', 'zod', 'nanoid', 'hono-rate-limiter'],
+    files: ['src/index.ts', 'wrangler.jsonc', 'src/database/schema.sql']
   }
 ];
 

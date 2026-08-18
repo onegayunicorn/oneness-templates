@@ -1,0 +1,18 @@
+{
+  "name": "sourcing-workflows",
+  "compatibility_date": "2026-08-17",
+  "main": "src/index.ts",
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sourcing_db",
+      "database_id": "your-d1-database-id"
+    }
+  ],
+  "ai": { "binding": "AI" },
+  "vars": {
+    "SUPPLIER_API_URL": "https://supplier-api.example.com",
+    "EMAIL_SERVICE_URL": "https://email-service.example.com"
+  }
+}

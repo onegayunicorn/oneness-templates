@@ -1,0 +1,26 @@
+{
+  "name": "universal-driver",
+  "compatibility_date": "2026-08-17",
+  "main": "src/index.ts",
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "universal_driver_db",
+      "database_id": "your-d1-database-id"
+    }
+  ],
+  "kv_namespaces": [
+    { "binding": "KV", "id": "your-kv-id" }
+  ],
+  "queues": {
+    "consumers": [
+      { "queue": "driver-queue", "max_batch_size": 10 }
+    ]
+  },
+  "ai": { "binding": "AI" },
+  "vars": {
+    "REDIS_URL": "redis://localhost:6379",
+    "VECTOR_DB_URL": "http://chroma:8000"
+  }
+}

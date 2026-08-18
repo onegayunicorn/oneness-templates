@@ -1,0 +1,38 @@
+{
+  "name": "cloudflare-api-starter",
+  "compatibility_date": "2026-08-17",
+  "main": "src/index.ts",
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true, "level": "info" },
+    "metrics": { "enabled": true }
+  },
+  "vars": {
+    "API_VERSION": "1.0.0",
+    "ENVIRONMENT": "production"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "api_db",
+      "database_id": "your-d1-database-id"
+    }
+  ],
+  "kv_namespaces": [
+    { "binding": "KV_CACHE", "id": "your-kv-cache-id" },
+    { "binding": "KV_SESSIONS", "id": "your-kv-sessions-id" },
+    { "binding": "KV_RATE_LIMIT", "id": "your-kv-rate-limit-id" }
+  ],
+  "r2_buckets": [
+    { "binding": "R2", "bucket_name": "api-assets" }
+  ],
+  "queues": {
+    "consumers": [
+      { "queue": "api-queue", "max_batch_size": 10 }
+    ]
+  },
+  "ai": { "binding": "AI" },
+  "routes": [
+    { "pattern": "api.oneness.workers.dev" }
+  ]
+}
