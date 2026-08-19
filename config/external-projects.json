@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "projects": [
+    {
+      "id": "sovereign-saas",
+      "name": "Sovereign SaaS",
+      "repository": "https://github.com/onegayunicorn/sovereign-saas",
+      "visibility": "public",
+      "buildStatus": "passed",
+      "smokeTestStatus": "passed",
+      "activationStatus": "not-activated",
+      "deploymentStatus": "published",
+      "deploymentTarget": "Cloudflare target configured; activation not executed",
+      "domain": "identity-forge.sovereign.ai",
+      "prerequisites": [
+        "Deployment target confirmation",
+        "Production credentials",
+        "Environment secrets",
+        "Domain ownership and DNS confirmation"
+      ],
+      "notes": "Extracted, repaired, built, smoke-tested, and published publicly. No activation or production launch was executed."
+    }
+  ]
+}
